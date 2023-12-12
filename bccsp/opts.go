@@ -59,6 +59,10 @@ const (
 
 	// X509Certificate Label for X509 certificate related operation
 	X509Certificate = "X509Certificate"
+
+	SM2 = "SM2"
+	SM3 = "SM3"
+	SM4 = "SM4"
 )
 
 // ECDSAKeyGenOpts contains options for ECDSA key generation.
@@ -263,4 +267,99 @@ func (opts *X509PublicKeyImportOpts) Algorithm() string {
 // false otherwise.
 func (opts *X509PublicKeyImportOpts) Ephemeral() bool {
 	return opts.Temporary
+}
+
+type SM2KeyGenOpts struct {
+	Temporary bool
+}
+
+func (opts *SM2KeyGenOpts) Algorithm() string {
+	return SM2
+}
+
+func (opts *SM2KeyGenOpts) Ephemeral() bool {
+	return opts.Temporary
+}
+
+type SM2PKIXPublicKeyImportOpts struct {
+	Temporary bool
+}
+
+func (opts *SM2PKIXPublicKeyImportOpts) Algorithm() string {
+	return SM2
+}
+
+func (opts *SM2PKIXPublicKeyImportOpts) Ephemeral() bool {
+	return opts.Temporary
+}
+
+type SM2PrivateKeyImportOpts struct {
+	Temporary bool
+}
+
+func (opts *SM2PrivateKeyImportOpts) Algorithm() string {
+	return SM2
+}
+
+func (opts *SM2PrivateKeyImportOpts) Ephemeral() bool {
+	return opts.Temporary
+}
+
+type SM2GoPublicKeyImportOpts struct {
+	Temporary bool
+}
+
+// Algorithm returns the key importation algorithm identifier (to be used).
+func (opts *SM2GoPublicKeyImportOpts) Algorithm() string {
+	return SM2
+}
+
+// Ephemeral returns true if the key to generate has to be ephemeral,
+// false otherwise.
+func (opts *SM2GoPublicKeyImportOpts) Ephemeral() bool {
+	return opts.Temporary
+}
+
+type SM2PublicKeyImportOpts struct {
+	Temporary bool
+}
+
+func (opts *SM2PublicKeyImportOpts) Algorithm() string {
+	return SM2
+}
+
+func (opts *SM2PublicKeyImportOpts) Ephemeral() bool {
+	return opts.Temporary
+}
+
+type SM4KeyGenOpts struct {
+	Temporary bool
+}
+
+func (opts *SM4KeyGenOpts) Algorithm() string {
+	return SM4
+}
+
+func (opts *SM4KeyGenOpts) Ephemeral() bool {
+	return opts.Temporary
+}
+
+type SM4ImportKeyOpts struct {
+	Temporary bool
+}
+
+func (opts *SM4ImportKeyOpts) Algorithm() string {
+	return SM4
+}
+
+func (opts *SM4ImportKeyOpts) Ephemeral() bool {
+	return opts.Temporary
+}
+
+// SHAOpts contains options for computing SHA.
+type SM3Opts struct{}
+
+// Algorithm returns the hash algorithm identifier (to be used).
+func (opts *SM3Opts) Algorithm() string {
+	return SM3
 }

@@ -40,7 +40,7 @@ require (
 	go.uber.org/zap v1.14.1
 	golang.org/x/crypto v0.1.0
 	golang.org/x/tools v0.1.12
-	google.golang.org/grpc v1.29.1
+	google.golang.org/grpc v1.31.0
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/cheggaaa/pb.v1 v1.0.28
 	gopkg.in/yaml.v2 v2.3.0
@@ -108,6 +108,8 @@ require (
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c // indirect
 )
+
+require github.com/tjfoc/gmsm v1.4.1
 
 replace github.com/onsi/gomega => github.com/onsi/gomega v1.9.0
 
