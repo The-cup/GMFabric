@@ -29,12 +29,7 @@ func GetRandomBytes(len int) ([]byte, error) {
 }
 
 func sm4CBCEncryptWithRand(prng io.Reader, key, s []byte) ([]byte, error) {
-	if len(s)%sm4.BlockSize != 0 {
-		return nil, errors.New("Invalid plaintext. It must be a multiple of the block size")
-	}
-
-	ciphertext := make([]byte, sm4.BlockSize+len(s))
-	iv := ciphertext[:sm4.BlockSize]
+	iv := make([]byte, sm4.BlockSize)
 	if _, err := io.ReadFull(prng, iv); err != nil {
 		return nil, err
 	}
@@ -42,7 +37,7 @@ func sm4CBCEncryptWithRand(prng io.Reader, key, s []byte) ([]byte, error) {
 	sm4.SetIV(iv)
 	ciphertext, err := sm4.Sm4Cbc(key, s, true)
 	if err != nil {
-		return nil, errors.New("Sm4Cbc function failed")
+		return nil, err
 	}
 	return ciphertext, nil
 }
