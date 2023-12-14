@@ -7,6 +7,14 @@ import (
 	"github.com/tjfoc/gmsm/x509"
 )
 
+func ParsePKCS8UnecryptedPrivateKey(der []byte) (*sm2.PrivateKey, error) {
+	return x509.ParsePKCS8UnecryptedPrivateKey(der)
+}
+
+func ParseSm2PublicKey(der []byte) (*sm2.PublicKey, error) {
+	return x509.ParseSm2PublicKey(der)
+}
+
 func pemToPrivateKey(raw []byte, pwd []byte) (interface{}, error) {
 	return x509.ReadPrivateKeyFromPem(raw, pwd)
 }

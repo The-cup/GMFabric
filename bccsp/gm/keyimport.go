@@ -37,17 +37,12 @@ func (*sm2PKIXPublicKeyImportOptsKeyImporter) KeyImport(raw interface{}, opts bc
 		return nil, errors.New("Invalid raw. It must not be nil.")
 	}
 
-	lowLevelKey, err := derToPublicKey(der)
+	pubKey, err := ParseSm2PublicKey(der)
 	if err != nil {
-		return nil, fmt.Errorf("Failed converting PKIX to ECDSA public key [%s]", err)
+		return nil, fmt.Errorf("Failed converting PKIX to SM2 public key [%s]", err)
 	}
 
-	ecdsaPK, ok := lowLevelKey.(*ecdsa.PublicKey)
-	if !ok {
-		return nil, errors.New("Failed casting to ECDSA public key. Invalid raw material.")
-	}
-
-	return &sm2PublicKey{ecdsaPK}, nil
+	return &sm2PublicKey{pubKey}, nil
 }
 
 type sm2PrivateKeyImportOptsKeyImporter struct{}
@@ -62,17 +57,12 @@ func (*sm2PrivateKeyImportOptsKeyImporter) KeyImport(raw interface{}, opts bccsp
 		return nil, errors.New("[ECDSADERPrivateKeyImportOpts] Invalid raw. It must not be nil.")
 	}
 
-	lowLevelKey, err := derToPrivateKey(der)
+	privKey, err := ParsePKCS8UnecryptedPrivateKey(der)
 	if err != nil {
-		return nil, fmt.Errorf("Failed converting PKIX to ECDSA public key [%s]", err)
+		return nil, fmt.Errorf("Failed converting PKIX to SM2 public key [%s]", err)
 	}
 
-	ecdsaSK, ok := lowLevelKey.(*ecdsa.PrivateKey)
-	if !ok {
-		return nil, errors.New("Failed casting to ECDSA private key. Invalid raw material.")
-	}
-
-	return &ecdsaPrivateKey{ecdsaSK}, nil
+	return &sm2PrivateKey{privKey}, nil
 }
 
 type sm2GoPublicKeyImportOptsKeyImporter struct{}

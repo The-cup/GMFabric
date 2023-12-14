@@ -17,17 +17,17 @@ func NewWithParams(securityLevel int, hashFamily string, keyStore bccsp.KeyStore
 	// of the following call fails.
 
 	// Set the Encryptors
-	gmbccsp.AddWrapper(reflect.TypeOf(&sm4PrivateKey{}), &aescbcpkcs7Encryptor{})
+	gmbccsp.AddWrapper(reflect.TypeOf(&sm4PrivateKey{}), &sm4cbcpkcs7Encryptor{})
 
 	// Set the Decryptors
-	gmbccsp.AddWrapper(reflect.TypeOf(&sm4PrivateKey{}), &aescbcpkcs7Decryptor{})
+	gmbccsp.AddWrapper(reflect.TypeOf(&sm4PrivateKey{}), &sm4cbcpkcs7Decryptor{})
 
 	// Set the Signers
-	gmbccsp.AddWrapper(reflect.TypeOf(&sm2PrivateKey{}), &ecdsaSigner{})
+	gmbccsp.AddWrapper(reflect.TypeOf(&sm2PrivateKey{}), &sm2Signer{})
 
 	// Set the Verifiers
-	gmbccsp.AddWrapper(reflect.TypeOf(&sm2PrivateKey{}), &ecdsaPrivateKeyVerifier{})
-	gmbccsp.AddWrapper(reflect.TypeOf(&sm2PublicKey{}), &ecdsaPublicKeyKeyVerifier{})
+	gmbccsp.AddWrapper(reflect.TypeOf(&sm2PrivateKey{}), &sm2PrivateKeyVerifier{})
+	gmbccsp.AddWrapper(reflect.TypeOf(&sm2PublicKey{}), &sm2PublicKeyKeyVerifier{})
 
 	// Set the Hashers
 	gmbccsp.AddWrapper(reflect.TypeOf(&bccsp.SM3Opts{}), &hasher{hash: sm3.New})

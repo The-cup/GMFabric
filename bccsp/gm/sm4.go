@@ -77,9 +77,17 @@ func SM4CBCPKCS7EncryptWithIV(IV []byte, key, src []byte) ([]byte, error) {
 	return sm4CBCEncryptWithIV(IV, key, src)
 }
 
-type sm4cbcEncryptor struct{}
+func SM4CBCPKCS7Decrypt(key, src []byte) ([]byte, error) {
+	cbcDec, err := sm4.Sm4Cbc(key, src, false)
+	if err != nil {
+		return nil, err
+	}
+	return cbcDec, nil
+}
 
-func (e *sm4cbcEncryptor) Encrypt(k bccsp.Key, plaintext []byte, opts bccsp.EncrypterOpts) ([]byte, error) {
+type sm4cbcpkcs7Encryptor struct{}
+
+func (e *sm4cbcpkcs7Encryptor) Encrypt(k bccsp.Key, plaintext []byte, opts bccsp.EncrypterOpts) ([]byte, error) {
 	switch o := opts.(type) {
 	case *bccsp.SM4CBCPKCS7ModeOpts:
 		if len(o.IV) != 0 && o.PRNG != nil {
@@ -94,6 +102,17 @@ func (e *sm4cbcEncryptor) Encrypt(k bccsp.Key, plaintext []byte, opts bccsp.Encr
 		return SM4CBCPKCS7Encrypt(k.(*sm4PrivateKey).privKey, plaintext)
 	case bccsp.SM4CBCPKCS7ModeOpts:
 		return e.Encrypt(k, plaintext, &o)
+	default:
+		return nil, fmt.Errorf("Mode not recognized [%s]", opts)
+	}
+}
+
+type sm4cbcpkcs7Decryptor struct {}
+
+func (*sm4cbcpkcs7Decryptor) Decrypt(k bccsp.Key, ciphertext []byte, opts bccsp.DecrypterOpts) ([]byte, error) {
+	switch opts.(type) {
+	case *bccsp.SM4CBCPKCS7ModeOpts, bccsp.SM4CBCPKCS7ModeOpts:
+		return SM4CBCPKCS7Decrypt(k.(*sm4PrivateKey).privKey, ciphertext)
 	default:
 		return nil, fmt.Errorf("Mode not recognized [%s]", opts)
 	}
