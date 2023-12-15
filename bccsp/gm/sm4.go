@@ -43,10 +43,6 @@ func sm4CBCEncryptWithRand(prng io.Reader, key, s []byte) ([]byte, error) {
 }
 
 func sm4CBCEncryptWithIV(IV []byte, key, s []byte) ([]byte, error) {
-	if len(s)%sm4.BlockSize != 0 {
-		return nil, errors.New("Invalid plaintext. It must be a multiple of the block size")
-	}
-
 	if len(IV) != sm4.BlockSize {
 		return nil, errors.New("Invalid IV. It must have length the block size")
 	}
@@ -102,7 +98,7 @@ func (e *sm4cbcpkcs7Encryptor) Encrypt(k bccsp.Key, plaintext []byte, opts bccsp
 	}
 }
 
-type sm4cbcpkcs7Decryptor struct {}
+type sm4cbcpkcs7Decryptor struct{}
 
 func (*sm4cbcpkcs7Decryptor) Decrypt(k bccsp.Key, ciphertext []byte, opts bccsp.DecrypterOpts) ([]byte, error) {
 	switch opts.(type) {
