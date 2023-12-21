@@ -97,7 +97,7 @@ func (csp *CSP) KeyDeriv(k bccsp.Key, opts bccsp.KeyDerivOpts) (dk bccsp.Key, er
 		}
 	}
 
-	return nil, errors.New("KeyDeriv not impl")
+	return k, nil
 }
 
 func (csp *CSP) KeyImport(raw interface{}, opts bccsp.KeyImportOpts) (k bccsp.Key, err error) {
@@ -125,7 +125,7 @@ func (csp *CSP) KeyImport(raw interface{}, opts bccsp.KeyImportOpts) (k bccsp.Ke
 		}
 	}
 
-	return nil, errors.New("KeyDeriv not impl")
+	return
 }
 
 func (csp *CSP) GetKey(ski []byte) (k bccsp.Key, err error) {

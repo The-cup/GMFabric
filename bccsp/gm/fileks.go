@@ -149,13 +149,13 @@ func (ks *fileBasedKeyStore) StoreKey(k bccsp.Key) (err error) {
 	case *sm2PublicKey:
 		err = ks.storePublicKey(hex.EncodeToString(k.SKI()), kk.pubKey)
 		if err != nil {
-			return fmt.Errorf("failed storing ECDSA public key [%s]", err)
+			return fmt.Errorf("failed storing SM2 public key [%s]", err)
 		}
 
 	case *sm4PrivateKey:
 		err = ks.storeKey(hex.EncodeToString(k.SKI()), kk.privKey)
 		if err != nil {
-			return fmt.Errorf("failed storing AES key [%s]", err)
+			return fmt.Errorf("failed storing SM4 key [%s]", err)
 		}
 
 	default:
@@ -256,6 +256,11 @@ func (ks *fileBasedKeyStore) storePublicKey(alias string, publicKey interface{})
 }
 
 func (ks *fileBasedKeyStore) storeKey(alias string, key []byte) error {
+	if len(key) == 0 {
+		err := errors.New("invalid sm4 key. It must be different from nil")
+		logger.Errorf("Failed converting key to PEM [%s]: [%s]", alias, err)
+		return err
+	}
 	pem, err := sm4.WriteKeyToPem(key, ks.pwd)
 	if err != nil {
 		logger.Errorf("Failed converting key to PEM [%s]: [%s]", alias, err)

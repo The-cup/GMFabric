@@ -8,7 +8,7 @@ package signer
 
 import (
 	"crypto"
-	"crypto/x509"
+	"github.com/tjfoc/gmsm/x509"
 	"io"
 
 	"github.com/hyperledger/fabric/bccsp"
@@ -48,6 +48,37 @@ func New(csp bccsp.BCCSP, key bccsp.Key) (crypto.Signer, error) {
 	}
 
 	pk, err := x509.ParsePKIXPublicKey(raw)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed marshalling der to public key")
+	}
+
+	return &bccspCryptoSigner{csp, key, pk}, nil
+}
+
+func NewSm2Signer(csp bccsp.BCCSP, key bccsp.Key) (crypto.Signer, error) {
+	// Validate arguments
+	if csp == nil {
+		return nil, errors.New("bccsp instance must be different from nil.")
+	}
+	if key == nil {
+		return nil, errors.New("key must be different from nil.")
+	}
+	if key.Symmetric() {
+		return nil, errors.New("key must be asymmetric.")
+	}
+
+	// Marshall the bccsp public key as a crypto.PublicKey
+	pub, err := key.PublicKey()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed getting public key")
+	}
+
+	raw, err := pub.Bytes()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed marshalling public key")
+	}
+
+	pk, err := x509.ParseSm2PublicKey(raw)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed marshalling der to public key")
 	}

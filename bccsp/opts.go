@@ -60,9 +60,10 @@ const (
 	// X509Certificate Label for X509 certificate related operation
 	X509Certificate = "X509Certificate"
 
-	SM2 = "SM2"
-	SM3 = "SM3"
-	SM4 = "SM4"
+	SM2ReRand = "SM2_RERAND"
+	SM2       = "SM2"
+	SM3       = "SM3"
+	SM4       = "SM4"
 )
 
 // ECDSAKeyGenOpts contains options for ECDSA key generation.
@@ -332,6 +333,27 @@ func (opts *SM2PublicKeyImportOpts) Ephemeral() bool {
 	return opts.Temporary
 }
 
+type SM2ReRandKeyOpts struct {
+	Temporary bool
+	Expansion []byte
+}
+
+// Algorithm returns the key derivation algorithm identifier (to be used).
+func (opts *SM2ReRandKeyOpts) Algorithm() string {
+	return SM2ReRand
+}
+
+// Ephemeral returns true if the key to generate has to be ephemeral,
+// false otherwise.
+func (opts *SM2ReRandKeyOpts) Ephemeral() bool {
+	return opts.Temporary
+}
+
+// ExpansionValue returns the re-randomization factor
+func (opts *SM2ReRandKeyOpts) ExpansionValue() []byte {
+	return opts.Expansion
+}
+
 type SM4KeyGenOpts struct {
 	Temporary bool
 }
@@ -362,4 +384,25 @@ type SM3Opts struct{}
 // Algorithm returns the hash algorithm identifier (to be used).
 func (opts *SM3Opts) Algorithm() string {
 	return SM3
+}
+
+type HMACTruncated256SM4DeriveKeyOpts struct {
+	Temporary bool
+	Arg       []byte
+}
+
+// Algorithm returns the key derivation algorithm identifier (to be used).
+func (opts *HMACTruncated256SM4DeriveKeyOpts) Algorithm() string {
+	return HMACTruncated256
+}
+
+// Ephemeral returns true if the key to generate has to be ephemeral,
+// false otherwise.
+func (opts *HMACTruncated256SM4DeriveKeyOpts) Ephemeral() bool {
+	return opts.Temporary
+}
+
+// Argument returns the argument to be passed to the HMAC
+func (opts *HMACTruncated256SM4DeriveKeyOpts) Argument() []byte {
+	return opts.Arg
 }

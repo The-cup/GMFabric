@@ -1,13 +1,29 @@
 package gm
 
 import (
+	"github.com/pkg/errors"
 	"reflect"
 
 	"github.com/hyperledger/fabric/bccsp"
 	"github.com/tjfoc/gmsm/sm3"
 )
 
+func NewDefaultSecurityLevel(keyStorePath string) (bccsp.BCCSP, error) {
+	ks := &fileBasedKeyStore{}
+	if err := ks.Init(nil, keyStorePath, false); err != nil {
+		return nil, errors.Wrapf(err, "Failed initializing key store at [%v]", keyStorePath)
+	}
+
+	return NewWithParams(-1, "SM", ks)
+}
+
 func NewWithParams(securityLevel int, hashFamily string, keyStore bccsp.KeyStore) (bccsp.BCCSP, error) {
+	conf := &config{}
+	err := conf.setSecurityLevel(securityLevel, hashFamily)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Failed initializing configuration at [%v,%v]", securityLevel, hashFamily)
+	}
+
 	gmbccsp, err := New(keyStore)
 	if err != nil {
 		return nil, err
@@ -34,12 +50,12 @@ func NewWithParams(securityLevel int, hashFamily string, keyStore bccsp.KeyStore
 
 	// Set the key generators
 	gmbccsp.AddWrapper(reflect.TypeOf(&bccsp.SM2KeyGenOpts{}), &sm2KeyGenerator{})
-	gmbccsp.AddWrapper(reflect.TypeOf(&bccsp.SM4KeyGenOpts{}), &sm4KeyGenerator{length: 256})
-	
+	gmbccsp.AddWrapper(reflect.TypeOf(&bccsp.SM4KeyGenOpts{}), &sm4KeyGenerator{length: 16})
+
 	// Set the key deriver
 	gmbccsp.AddWrapper(reflect.TypeOf(&sm2PrivateKey{}), &sm2PrivateKeyKeyDeriver{})
 	gmbccsp.AddWrapper(reflect.TypeOf(&sm2PublicKey{}), &sm2PublicKeyKeyDeriver{})
-	gmbccsp.AddWrapper(reflect.TypeOf(&sm4PrivateKey{}), &sm4PrivateKeyKeyDeriver{})
+	gmbccsp.AddWrapper(reflect.TypeOf(&sm4PrivateKey{}), &sm4PrivateKeyKeyDeriver{conf: conf})
 
 	// Set the key importers
 	gmbccsp.AddWrapper(reflect.TypeOf(&bccsp.SM4ImportKeyOpts{}), &sm4ImportKeyOptsKeyImporter{})
