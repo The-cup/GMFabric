@@ -20,6 +20,7 @@ const pkcs11Enabled = false
 type FactoryOpts struct {
 	ProviderName string  `mapstructure:"default" json:"default" yaml:"Default"`
 	SwOpts       *SwOpts `mapstructure:"SW,omitempty" json:"SW,omitempty" yaml:"SW,omitempty"`
+	GmOpts       *GmOpts `mapstructure:"GM,omitempty" json:"GM,omitempty" yaml:"GM,omitempty"`
 }
 
 // InitFactories must be called before using factory interfaces
@@ -41,16 +42,30 @@ func initFactories(config *FactoryOpts) error {
 	}
 
 	if config.ProviderName == "" {
-		config.ProviderName = "SW"
+		config.ProviderName = "GM"
 	}
 
 	if config.SwOpts == nil {
 		config.SwOpts = GetDefaultOpts().SwOpts
 	}
 
+	if config.GmOpts == nil {
+		config.GmOpts = GetDefaultOpts().GmOpts
+	}
+
 	// Software-Based BCCSP
 	if config.ProviderName == "SW" && config.SwOpts != nil {
 		f := &SWFactory{}
+		var err error
+		defaultBCCSP, err = initBCCSP(f, config)
+		if err != nil {
+			return errors.Wrapf(err, "Failed initializing BCCSP")
+		}
+	}
+
+	// GuoMi-Based BCCSP
+	if config.ProviderName == "GM" && config.GmOpts != nil {
+		f := &GMFactory{}
 		var err error
 		defaultBCCSP, err = initBCCSP(f, config)
 		if err != nil {
@@ -71,6 +86,8 @@ func GetBCCSPFromOpts(config *FactoryOpts) (bccsp.BCCSP, error) {
 	switch config.ProviderName {
 	case "SW":
 		f = &SWFactory{}
+	case "GM":
+		f = &GMFactory{}
 	default:
 		return nil, errors.Errorf("Could not find BCCSP, no '%s' provider", config.ProviderName)
 	}

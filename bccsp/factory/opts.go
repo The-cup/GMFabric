@@ -20,10 +20,10 @@ package factory
 // returns a new instance every time
 func GetDefaultOpts() *FactoryOpts {
 	return &FactoryOpts{
-		ProviderName: "SW",
-		SwOpts: &SwOpts{
-			HashFamily: "SHA2",
-			SecLevel:   256,
+		ProviderName: "GM",
+		GmOpts: &GmOpts{
+			HashFamily: "SM",
+			SecLevel:   -1,
 		},
 	}
 }

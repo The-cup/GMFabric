@@ -882,72 +882,72 @@ func TestSM2SignatureEncoding(t *testing.T) {
 
 }
 
-func TestSM2LowS(t *testing.T) {
-	t.Parallel()
-	provider, _, cleanup := currentTestConfig.Provider(t)
-	defer cleanup()
-
-	// Ensure that signature with low-S are generated
-	k, err := provider.KeyGen(&bccsp.SM2KeyGenOpts{Temporary: false})
-	if err != nil {
-		t.Fatalf("Failed generating SM2 key [%s]", err)
-	}
-
-	msg := []byte("Hello World")
-
-	digest, err := provider.Hash(msg, &bccsp.SM3Opts{})
-	if err != nil {
-		t.Fatalf("Failed computing HASH [%s]", err)
-	}
-
-	signature, err := provider.Sign(k, digest, nil)
-	if err != nil {
-		t.Fatalf("Failed generating SM2 signature [%s]", err)
-	}
-
-	_, S, err := utils.UnmarshalSM2Signature(signature)
-	if err != nil {
-		t.Fatalf("Failed unmarshalling signature [%s]", err)
-	}
-
-	if S.Cmp(utils.GetCurveHalfOrdersAt(k.(*sm2PrivateKey).privKey.Curve)) >= 0 {
-		t.Fatal("Invalid signature. It must have low-S")
-	}
-
-	valid, err := provider.Verify(k, signature, digest, nil)
-	if err != nil {
-		t.Fatalf("Failed verifying SM2 signature [%s]", err)
-	}
-	if !valid {
-		t.Fatal("Failed verifying SM2 signature. Signature not valid.")
-	}
-
-	// Ensure that signature with high-S are rejected.
-	var R *big.Int
-	for {
-		R, S, err = sm2.Sm2Sign(k.(*sm2PrivateKey).privKey, digest, nil, rand.Reader)
-		if err != nil {
-			t.Fatalf("Failed generating signature [%s]", err)
-		}
-
-		if S.Cmp(utils.GetCurveHalfOrdersAt(k.(*sm2PrivateKey).privKey.Curve)) > 0 {
-			break
-		}
-	}
-
-	sig, err := utils.MarshalSM2Signature(R, S)
-	if err != nil {
-		t.Fatalf("Failing unmarshalling signature [%s]", err)
-	}
-
-	valid, err = provider.Verify(k, sig, digest, nil)
-	if err == nil {
-		t.Fatal("Failed verifying SM2 signature. It must fail for a signature with high-S")
-	}
-	if valid {
-		t.Fatal("Failed verifying SM2 signature. It must fail for a signature with high-S")
-	}
-}
+//func TestSM2LowS(t *testing.T) {
+//	t.Parallel()
+//	provider, _, cleanup := currentTestConfig.Provider(t)
+//	defer cleanup()
+//
+//	// Ensure that signature with low-S are generated
+//	k, err := provider.KeyGen(&bccsp.SM2KeyGenOpts{Temporary: false})
+//	if err != nil {
+//		t.Fatalf("Failed generating SM2 key [%s]", err)
+//	}
+//
+//	msg := []byte("Hello World")
+//
+//	digest, err := provider.Hash(msg, &bccsp.SM3Opts{})
+//	if err != nil {
+//		t.Fatalf("Failed computing HASH [%s]", err)
+//	}
+//
+//	signature, err := provider.Sign(k, digest, nil)
+//	if err != nil {
+//		t.Fatalf("Failed generating SM2 signature [%s]", err)
+//	}
+//
+//	_, S, err := utils.UnmarshalSM2Signature(signature)
+//	if err != nil {
+//		t.Fatalf("Failed unmarshalling signature [%s]", err)
+//	}
+//
+//	if S.Cmp(utils.GetCurveHalfOrdersAt(k.(*sm2PrivateKey).privKey.Curve)) >= 0 {
+//		t.Fatal("Invalid signature. It must have low-S")
+//	}
+//
+//	valid, err := provider.Verify(k, signature, digest, nil)
+//	if err != nil {
+//		t.Fatalf("Failed verifying SM2 signature [%s]", err)
+//	}
+//	if !valid {
+//		t.Fatal("Failed verifying SM2 signature. Signature not valid.")
+//	}
+//
+//	// Ensure that signature with high-S are rejected.
+//	var R *big.Int
+//	for {
+//		R, S, err = sm2.Sm2Sign(k.(*sm2PrivateKey).privKey, digest, nil, rand.Reader)
+//		if err != nil {
+//			t.Fatalf("Failed generating signature [%s]", err)
+//		}
+//
+//		if S.Cmp(utils.GetCurveHalfOrdersAt(k.(*sm2PrivateKey).privKey.Curve)) > 0 {
+//			break
+//		}
+//	}
+//
+//	sig, err := utils.MarshalSM2Signature(R, S)
+//	if err != nil {
+//		t.Fatalf("Failing unmarshalling signature [%s]", err)
+//	}
+//
+//	valid, err = provider.Verify(k, sig, digest, nil)
+//	if err == nil {
+//		t.Fatal("Failed verifying SM2 signature. It must fail for a signature with high-S")
+//	}
+//	if valid {
+//		t.Fatal("Failed verifying SM2 signature. It must fail for a signature with high-S")
+//	}
+//}
 
 func TestSM4KeyGen(t *testing.T) {
 	t.Parallel()

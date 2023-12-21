@@ -6,6 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 package idemix
 
 import (
+	"github.com/hyperledger/fabric/bccsp/gm"
 	"reflect"
 
 	"github.com/hyperledger/fabric/bccsp/idemix/bridge"
@@ -13,16 +14,15 @@ import (
 	"github.com/hyperledger/fabric/bccsp/idemix/handlers"
 
 	"github.com/hyperledger/fabric/bccsp"
-	"github.com/hyperledger/fabric/bccsp/sw"
 	"github.com/pkg/errors"
 )
 
 type csp struct {
-	*sw.CSP
+	*gm.CSP
 }
 
 func New(keyStore bccsp.KeyStore) (*csp, error) {
-	base, err := sw.New(keyStore)
+	base, err := gm.New(keyStore)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed instantiating base bccsp")
 	}
