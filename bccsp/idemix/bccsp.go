@@ -6,8 +6,9 @@ SPDX-License-Identifier: Apache-2.0
 package idemix
 
 import (
-	"github.com/hyperledger/fabric/bccsp/gm"
 	"reflect"
+
+	"github.com/hyperledger/fabric/bccsp/gm"
 
 	"github.com/hyperledger/fabric/bccsp/idemix/bridge"
 

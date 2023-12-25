@@ -8,8 +8,9 @@ package signer
 
 import (
 	"crypto"
-	"github.com/tjfoc/gmsm/x509"
 	"io"
+
+	"github.com/tjfoc/gmsm/x509"
 
 	"github.com/hyperledger/fabric/bccsp"
 	"github.com/pkg/errors"

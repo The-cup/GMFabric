@@ -20,8 +20,9 @@ import (
 	"encoding/asn1"
 	"errors"
 	"fmt"
-	"github.com/tjfoc/gmsm/sm2"
 	"math/big"
+
+	"github.com/tjfoc/gmsm/sm2"
 )
 
 type SM2Signature struct {

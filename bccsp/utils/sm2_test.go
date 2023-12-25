@@ -18,10 +18,11 @@ package utils
 
 import (
 	"crypto/rand"
-	"github.com/stretchr/testify/assert"
-	"github.com/tjfoc/gmsm/sm2"
 	"math/big"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/tjfoc/gmsm/sm2"
 )
 
 func TestUnmarshalSM2Signature(t *testing.T) {

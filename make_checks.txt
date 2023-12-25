@@ -1,0 +1,27 @@
+The following files are missing SPDX-License-Identifier headers:
+bccsp/utils/sm2.go
+bccsp/utils/sm2_test.go
+
+Please replace the Apache license header comment text with:
+SPDX-License-Identifier: Apache-2.0
+
+Checking committed files for traditional Apache License headers ...
+All remaining files have Apache 2.0 headers
+Building github.com/client9/misspell/cmd/misspell -> misspell
+Checking changed go files for spelling errors ...
+spell checker passed
+Checking for go:generate parent path references
+Checking trailing spaces ...
+DEP: Checking for dependency issues..
+./scripts/check_deps.sh
+Building golang.org/x/tools/cmd/goimports -> goimports
+LINT: Running code checks..
+./scripts/golinter.sh
+Checking with gofmt
+Checking with goimports
+Checking for golang.org/x/net/context
+Checking for github.com/gogo/protobuf
+Checking with go vet
+METRICS: Checking for outdated reference documentation..
+./scripts/metrics_doc.sh check
+docker pull couchdb:3.3.2
