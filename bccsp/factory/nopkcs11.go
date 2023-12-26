@@ -38,7 +38,8 @@ func InitFactories(config *FactoryOpts) error {
 func initFactories(config *FactoryOpts) error {
 	// Take some precautions on default opts
 	if config == nil {
-		config = GetDefaultOpts()
+		// config = GetDefaultOpts()
+		config = GetGmOpts()
 	}
 
 	if config.ProviderName == "" {
@@ -46,11 +47,11 @@ func initFactories(config *FactoryOpts) error {
 	}
 
 	if config.SwOpts == nil {
-		config.SwOpts = GetDefaultOpts().SwOpts
+		config.SwOpts = GetSwOpts().SwOpts
 	}
 
 	if config.GmOpts == nil {
-		config.GmOpts = GetDefaultOpts().GmOpts
+		config.GmOpts = GetGmOpts().GmOpts
 	}
 
 	// Software-Based BCCSP

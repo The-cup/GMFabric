@@ -22,7 +22,7 @@ func LoadMSPSetupForTesting() error {
 		return err
 	}
 
-	err = mgmt.GetLocalMSP(factory.GetDefault()).Setup(conf)
+	err = mgmt.GetLocalMSP(factory.GetSwBCCSP()).Setup(conf)
 	if err != nil {
 		return err
 	}

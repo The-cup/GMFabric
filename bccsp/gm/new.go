@@ -9,8 +9,9 @@ package gm
 import (
 	"crypto/sha256"
 	"crypto/sha512"
-	"golang.org/x/crypto/sha3"
 	"reflect"
+
+	"golang.org/x/crypto/sha3"
 
 	"github.com/pkg/errors"
 
