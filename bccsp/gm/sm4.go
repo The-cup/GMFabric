@@ -21,10 +21,11 @@ import (
 	"crypto/rand"
 	"errors"
 	"fmt"
-	"github.com/hyperledger/fabric/bccsp"
-	"github.com/tjfoc/gmsm/sm4"
 	"io"
 	"strconv"
+
+	"github.com/hyperledger/fabric/bccsp"
+	"github.com/tjfoc/gmsm/sm4"
 )
 
 func GetRandomBytes(len int) ([]byte, error) {
