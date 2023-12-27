@@ -38,19 +38,18 @@ func InitFactories(config *FactoryOpts) error {
 func initFactories(config *FactoryOpts) error {
 	// Take some precautions on default opts
 	if config == nil {
-		// config = GetDefaultOpts()
-		config = GetGmOpts()
+		config = GetDefaultOpts()
 	}
 
 	if config.ProviderName == "" {
-		config.ProviderName = "GM"
+		config.ProviderName = "SW"
 	}
 
-	if config.SwOpts == nil {
+	if config.ProviderName == "SW" && config.SwOpts == nil {
 		config.SwOpts = GetSwOpts().SwOpts
 	}
 
-	if config.GmOpts == nil {
+	if config.ProviderName == "GM" && config.GmOpts == nil {
 		config.GmOpts = GetGmOpts().GmOpts
 	}
 

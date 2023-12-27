@@ -22,5 +22,9 @@ import (
 )
 
 func TestFactoryOptsFactoryName(t *testing.T) {
+	assert.Equal(t, GetDefaultOpts().FactoryName(), "SW")
+}
+
+func TestGMFactoryOptsFactoryName(t *testing.T) {
 	assert.Equal(t, GetGmOpts().FactoryName(), "GM")
 }

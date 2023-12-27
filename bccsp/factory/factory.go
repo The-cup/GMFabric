@@ -40,6 +40,25 @@ type BCCSPFactory interface {
 
 // GetDefault returns a non-ephemeral (long-term) BCCSP
 func GetDefault() bccsp.BCCSP {
+	return GetSwBCCSP()
+}
+
+func GetSwBCCSP() bccsp.BCCSP {
+	if defaultBCCSP == nil {
+		logger.Debug("Before using BCCSP, please call InitFactories(). Falling back to bootBCCSP.")
+		bootBCCSPInitOnce.Do(func() {
+			var err error
+			bootBCCSP, err = (&SWFactory{}).Get(GetSwOpts())
+			if err != nil {
+				panic("BCCSP Internal error, failed initialization with GetGmOpts!")
+			}
+		})
+		return bootBCCSP
+	}
+	return defaultBCCSP
+}
+
+func GetGmBCCSP() bccsp.BCCSP {
 	if defaultBCCSP == nil {
 		logger.Debug("Before using BCCSP, please call InitFactories(). Falling back to bootBCCSP.")
 		bootBCCSPInitOnce.Do(func() {
@@ -52,20 +71,6 @@ func GetDefault() bccsp.BCCSP {
 		return bootBCCSP
 	}
 	return defaultBCCSP
-}
-
-func GetSwBCCSP() bccsp.BCCSP {
-	swcsp, err := GetBCCSPFromOpts(&FactoryOpts{
-		ProviderName: "SW",
-		SwOpts: &SwOpts{
-			HashFamily: "SHA2",
-			SecLevel:   256,
-		},
-	})
-	if err != nil {
-		panic("Get SwBCCSP failed!")
-	}
-	return swcsp
 }
 
 func initBCCSP(f BCCSPFactory, config *FactoryOpts) (bccsp.BCCSP, error) {

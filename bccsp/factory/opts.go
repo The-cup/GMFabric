@@ -19,7 +19,7 @@ package factory
 // GetDefaultOpts offers a default implementation for Opts
 // returns a new instance every time
 func GetDefaultOpts() *FactoryOpts {
-	return GetGmOpts()
+	return GetSwOpts()
 }
 
 func GetSwOpts() *FactoryOpts {

@@ -22,10 +22,10 @@ func TestMain(m *testing.M) {
 
 	yamlCFG := `
 BCCSP:
-    default: GM
-    GM:
-        Hash: SM
-        Security: -1
+    default: SW
+    SW:
+        Hash: SHA2
+        Security: 256
 `
 
 	if pkcs11Enabled {
@@ -61,9 +61,11 @@ BCCSP:
 
 	cfgVariations := []*FactoryOpts{
 		{},
+		{ProviderName: "SW"},
+		{ProviderName: "SW", SwOpts: &SwOpts{HashFamily: "SHA2", SecLevel: 256}},
+		yamlBCCSP,
 		{ProviderName: "GM"},
 		{ProviderName: "GM", GmOpts: &GmOpts{HashFamily: "SM", SecLevel: -1}},
-		yamlBCCSP,
 	}
 
 	for index, config := range cfgVariations {
@@ -82,5 +84,10 @@ BCCSP:
 
 func TestGetDefault(t *testing.T) {
 	bccsp := GetDefault()
+	require.NotNil(t, bccsp, "Failed getting default BCCSP. Nil instance.")
+}
+
+func TestGetGmBCCSP(t *testing.T) {
+	bccsp := GetGmBCCSP()
 	require.NotNil(t, bccsp, "Failed getting default BCCSP. Nil instance.")
 }
