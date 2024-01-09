@@ -23,11 +23,18 @@ func GetDefaultOpts() *FactoryOpts {
 }
 
 func GetSwOpts() *FactoryOpts {
+	//return &FactoryOpts{
+	//ProviderName: "SW",
+	//SwOpts: &SwOpts{
+	//	HashFamily: "SHA2",
+	//	SecLevel:   256,
+	//},
+	//}
 	return &FactoryOpts{
 		ProviderName: "SW",
 		SwOpts: &SwOpts{
-			HashFamily: "SHA2",
-			SecLevel:   256,
+			HashFamily: "SM",
+			SecLevel:   -1,
 		},
 	}
 }

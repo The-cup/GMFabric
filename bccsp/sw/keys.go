@@ -15,6 +15,10 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+
+	"github.com/hyperledger/fabric/bccsp/utils"
+	"github.com/tjfoc/gmsm/sm2"
+	"github.com/tjfoc/gmsm/sm4"
 )
 
 type pkcs8Info struct {
@@ -31,10 +35,11 @@ type ecPrivateKey struct {
 }
 
 var (
-	oidNamedCurveP224 = asn1.ObjectIdentifier{1, 3, 132, 0, 33}
-	oidNamedCurveP256 = asn1.ObjectIdentifier{1, 2, 840, 10045, 3, 1, 7}
-	oidNamedCurveP384 = asn1.ObjectIdentifier{1, 3, 132, 0, 34}
-	oidNamedCurveP521 = asn1.ObjectIdentifier{1, 3, 132, 0, 35}
+	oidNamedCurveP224    = asn1.ObjectIdentifier{1, 3, 132, 0, 33}
+	oidNamedCurveP256    = asn1.ObjectIdentifier{1, 2, 840, 10045, 3, 1, 7}
+	oidNamedCurveP384    = asn1.ObjectIdentifier{1, 3, 132, 0, 34}
+	oidNamedCurveP521    = asn1.ObjectIdentifier{1, 3, 132, 0, 35}
+	oidNamedCurveP256SM2 = asn1.ObjectIdentifier{1, 2, 156, 10197, 1, 301}
 )
 
 var oidPublicKeyECDSA = asn1.ObjectIdentifier{1, 2, 840, 10045, 2, 1}
@@ -49,16 +54,25 @@ func oidFromNamedCurve(curve elliptic.Curve) (asn1.ObjectIdentifier, bool) {
 		return oidNamedCurveP384, true
 	case elliptic.P521():
 		return oidNamedCurveP521, true
+	case sm2.P256Sm2():
+		return oidNamedCurveP256SM2, true
 	}
 	return nil, false
 }
 
-func privateKeyToDER(privateKey *ecdsa.PrivateKey) ([]byte, error) {
+func privateKeyToDER(privateKey interface{}) ([]byte, error) {
 	if privateKey == nil {
-		return nil, errors.New("invalid ecdsa private key. It must be different from nil")
+		return nil, errors.New("invalid private key. It must be different from nil")
 	}
 
-	return x509.MarshalECPrivateKey(privateKey)
+	switch k := privateKey.(type) {
+	case *ecdsa.PrivateKey:
+		return x509.MarshalECPrivateKey(k)
+	case *sm2.PrivateKey:
+		return utils.MarshalSm2PrivateKey(k, nil)
+	default:
+		return nil, errors.New("invalid type of private key. It must be in [ecdsa, sm2]")
+	}
 }
 
 func privateKeyToPEM(privateKey interface{}, pwd []byte) ([]byte, error) {
@@ -114,6 +128,12 @@ func privateKeyToPEM(privateKey interface{}, pwd []byte) ([]byte, error) {
 				Bytes: pkcs8Bytes,
 			},
 		), nil
+	case *sm2.PrivateKey:
+		if k == nil {
+			return nil, errors.New("invalid sm2 private key. It must be different from nil")
+		}
+
+		return utils.WritePrivateKeyToPem(k, nil)
 
 	default:
 		return nil, errors.New("invalid key type. It must be *ecdsa.PrivateKey")
@@ -148,6 +168,11 @@ func privateKeyToEncryptedPEM(privateKey interface{}, pwd []byte) ([]byte, error
 		}
 
 		return pem.EncodeToMemory(block), nil
+	case *sm2.PrivateKey:
+		if k == nil {
+			return nil, errors.New("invalid sm2 private key. It must be different from nil")
+		}
+		return utils.WritePrivateKeyToPem(k, pwd)
 
 	default:
 		return nil, errors.New("invalid key type. It must be *ecdsa.PrivateKey")
@@ -165,7 +190,14 @@ func derToPrivateKey(der []byte) (key interface{}, err error) {
 		case *ecdsa.PrivateKey:
 			return
 		default:
-			return nil, errors.New("found unknown private key type in PKCS#8 wrapping")
+			if key, err = utils.ParsePKCS8PrivateKey(der, nil); err == nil {
+				switch key.(type) {
+				case *sm2.PrivateKey:
+					return
+				default:
+					return nil, errors.New("found unknown private key type in PKCS#8 wrapping")
+				}
+			}
 		}
 	}
 
@@ -173,7 +205,11 @@ func derToPrivateKey(der []byte) (key interface{}, err error) {
 		return
 	}
 
-	return nil, errors.New("invalid key type. The DER must contain an ecdsa.PrivateKey")
+	if key, err = utils.ParseSm2PrivateKey(der); err == nil {
+		return
+	}
+
+	return nil, errors.New("invalid key type. The DER must contain an ecdsa.PrivateKey or sm2.PrivateKey")
 }
 
 func pemToPrivateKey(raw []byte, pwd []byte) (interface{}, error) {
@@ -258,6 +294,31 @@ func aesToEncryptedPEM(raw []byte, pwd []byte) ([]byte, error) {
 	return pem.EncodeToMemory(block), nil
 }
 
+func pemToSM4(raw []byte, pwd []byte) ([]byte, error) {
+	if len(raw) == 0 {
+		return nil, errors.New("invalid PEM. It must be different from nil")
+	}
+	return sm4.ReadKeyFromPem(raw, pwd)
+}
+
+func sm4ToPEM(raw []byte) []byte {
+	pem, err := sm4.WriteKeyToPem(raw, nil)
+	if err != nil {
+		return nil
+	}
+	return pem
+}
+
+func sm4ToEncryptedPEM(raw []byte, pwd []byte) ([]byte, error) {
+	if len(raw) == 0 {
+		return nil, errors.New("invalid aes key. It must be different from nil")
+	}
+	if len(pwd) == 0 {
+		return sm4ToPEM(raw), nil
+	}
+	return sm4.WriteKeyToPem(raw, pwd)
+}
+
 func publicKeyToPEM(publicKey interface{}, pwd []byte) ([]byte, error) {
 	if len(pwd) != 0 {
 		return publicKeyToEncryptedPEM(publicKey, pwd)
@@ -283,7 +344,12 @@ func publicKeyToPEM(publicKey interface{}, pwd []byte) ([]byte, error) {
 				Bytes: PubASN1,
 			},
 		), nil
+	case *sm2.PublicKey:
+		if k == nil {
+			return nil, errors.New("invalid sm2 public key. It must be different from nil")
+		}
 
+		return utils.WritePublicKeyToPem(k)
 	default:
 		return nil, errors.New("invalid key type. It must be *ecdsa.PublicKey")
 	}
@@ -354,6 +420,10 @@ func pemToPublicKey(raw []byte, pwd []byte) (interface{}, error) {
 func derToPublicKey(raw []byte) (pub interface{}, err error) {
 	if len(raw) == 0 {
 		return nil, errors.New("invalid DER. It must be different from nil")
+	}
+
+	if key, err := utils.ParseSm2PublicKey(raw); err == nil {
+		return key, err
 	}
 
 	key, err := x509.ParsePKIXPublicKey(raw)

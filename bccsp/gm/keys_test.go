@@ -267,30 +267,34 @@ func TestSM2Keys(t *testing.T) {
 }
 
 func TestSM4Key(t *testing.T) {
-	k := sm4.SM4Key{0, 1, 2, 3, 4, 5}
-	pem, err := sm4.WriteKeyToPem(k, nil)
-	assert.NoError(t, err)
+	k := []byte{0, 1, 2, 3, 4, 5}
+	pem := sm4ToPEM(k)
 
-	k2, err := sm4.ReadKeyFromPem(pem, nil)
-	assert.NoError(t, err)
-	assert.Equal(t, k, k2)
-
-	pem, err = sm4.WriteKeyToPem(k, k)
-	assert.NoError(t, err)
-
-	k2, err = sm4.ReadKeyFromPem(pem, k)
+	k2, err := pemToSM4(pem, nil)
 	assert.NoError(t, err)
 	assert.Equal(t, k, k2)
 
-	_, err = sm4.ReadKeyFromPem(pem, nil)
+	pem, err = sm4ToEncryptedPEM(k, k)
+	assert.NoError(t, err)
+
+	k2, err = pemToSM4(pem, k)
+	assert.NoError(t, err)
+	assert.Equal(t, k, k2)
+
+	_, err = pemToSM4(pem, nil)
 	assert.Error(t, err)
 
-	_, err = sm4.WriteKeyToPem(k, nil)
+	_, err = sm4ToEncryptedPEM(k, nil)
 	assert.NoError(t, err)
 
-	k2, err = sm4.ReadKeyFromPem(pem, k)
+	k2, err = pemToSM4(pem, k)
 	assert.NoError(t, err)
 	assert.Equal(t, k, k2)
+}
+
+func TestDERToPublicKey(t *testing.T) {
+	_, err := derToPublicKey(nil)
+	assert.Error(t, err)
 }
 
 func TestNil(t *testing.T) {

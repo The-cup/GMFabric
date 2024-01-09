@@ -20,6 +20,7 @@ import (
 	"crypto/elliptic"
 	"encoding/asn1"
 	"errors"
+	"github.com/tjfoc/gmsm/sm4"
 
 	"github.com/tjfoc/gmsm/sm2"
 	"github.com/tjfoc/gmsm/x509"
@@ -51,7 +52,7 @@ func oidFromNamedCurve(curve elliptic.Curve) (asn1.ObjectIdentifier, bool) {
 
 func privateKeyToDER(privateKey *sm2.PrivateKey) ([]byte, error) {
 	if privateKey == nil {
-		return nil, errors.New("invalid ecdsa private key. It must be different from nil")
+		return nil, errors.New("invalid sm2 private key. It must be different from nil")
 	}
 
 	return x509.MarshalSm2PrivateKey(privateKey, nil)
@@ -123,6 +124,31 @@ func pemToPrivateKey(raw []byte, pwd []byte) (interface{}, error) {
 		return x509.ReadPrivateKeyFromPem(raw, nil)
 	}
 	return x509.ReadPrivateKeyFromPem(raw, pwd)
+}
+
+func pemToSM4(raw []byte, pwd []byte) ([]byte, error) {
+	if len(raw) == 0 {
+		return nil, errors.New("invalid PEM. It must be different from nil")
+	}
+	return sm4.ReadKeyFromPem(raw, pwd)
+}
+
+func sm4ToPEM(raw []byte) []byte {
+	pem, err := sm4.WriteKeyToPem(raw, nil)
+	if err != nil {
+		return nil
+	}
+	return pem
+}
+
+func sm4ToEncryptedPEM(raw []byte, pwd []byte) ([]byte, error) {
+	if len(raw) == 0 {
+		return nil, errors.New("invalid aes key. It must be different from nil")
+	}
+	if len(pwd) == 0 {
+		return sm4ToPEM(raw), nil
+	}
+	return sm4.WriteKeyToPem(raw, pwd)
 }
 
 func publicKeyToPEM(publicKey interface{}) ([]byte, error) {

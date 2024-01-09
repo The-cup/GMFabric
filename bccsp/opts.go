@@ -59,6 +59,7 @@ const (
 
 	// X509Certificate Label for X509 certificate related operation
 	X509Certificate = "X509Certificate"
+	HMACSM4         = "HMAC_SM4"
 
 	SM2ReRand = "SM2_RERAND"
 	SM2       = "SM2"
@@ -375,6 +376,22 @@ func (opts *SM4ImportKeyOpts) Algorithm() string {
 }
 
 func (opts *SM4ImportKeyOpts) Ephemeral() bool {
+	return opts.Temporary
+}
+
+// HMACImportKeyOpts contains options for importing HMAC keys.
+type HMACSm4ImportKeyOpts struct {
+	Temporary bool
+}
+
+// Algorithm returns the key importation algorithm identifier (to be used).
+func (opts *HMACSm4ImportKeyOpts) Algorithm() string {
+	return HMACSM4
+}
+
+// Ephemeral returns true if the key generated has to be ephemeral,
+// false otherwise.
+func (opts *HMACSm4ImportKeyOpts) Ephemeral() bool {
 	return opts.Temporary
 }
 
