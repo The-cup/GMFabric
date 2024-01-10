@@ -190,14 +190,16 @@ func derToPrivateKey(der []byte) (key interface{}, err error) {
 		case *ecdsa.PrivateKey:
 			return
 		default:
-			if key, err = utils.ParsePKCS8PrivateKey(der, nil); err == nil {
-				switch key.(type) {
-				case *sm2.PrivateKey:
-					return
-				default:
-					return nil, errors.New("found unknown private key type in PKCS#8 wrapping")
-				}
-			}
+			return nil, errors.New("found unknown private key type in PKCS#8 wrapping")
+		}
+	}
+
+	if key, err = utils.ParsePKCS8PrivateKey(der, nil); err == nil {
+		switch key.(type) {
+		case *sm2.PrivateKey:
+			return
+		default:
+			return nil, errors.New("found unknown private key type in PKCS#8 wrapping")
 		}
 	}
 
@@ -238,9 +240,10 @@ func pemToPrivateKey(raw []byte, pwd []byte) (interface{}, error) {
 	}
 
 	cert, err := derToPrivateKey(block.Bytes)
-	if err != nil {
-		return nil, err
+	if err == nil {
+		return cert, err
 	}
+	cert, err = utils.ReadPrivateKeyFromPem(raw, pwd)
 	return cert, err
 }
 
@@ -378,6 +381,11 @@ func publicKeyToEncryptedPEM(publicKey interface{}, pwd []byte) ([]byte, error) 
 		}
 
 		return pem.EncodeToMemory(block), nil
+	case *sm2.PublicKey:
+		if k == nil {
+			return nil, errors.New("invalid sm2 public key. It must be different from nil")
+		}
+		return utils.WritePublicKeyToPem(k)
 	default:
 		return nil, errors.New("invalid key type. It must be *ecdsa.PublicKey")
 	}
@@ -422,11 +430,11 @@ func derToPublicKey(raw []byte) (pub interface{}, err error) {
 		return nil, errors.New("invalid DER. It must be different from nil")
 	}
 
-	if key, err := utils.ParseSm2PublicKey(raw); err == nil {
+	if key, err := x509.ParsePKIXPublicKey(raw); err == nil {
 		return key, err
 	}
 
-	key, err := x509.ParsePKIXPublicKey(raw)
+	key, err := utils.ParseSm2PublicKey(raw)
 
 	return key, err
 }

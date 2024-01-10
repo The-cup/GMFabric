@@ -64,6 +64,7 @@ func TestMain(m *testing.M) {
 		{256, "SHA3"},
 		{384, "SHA2"},
 		{384, "SHA3"},
+		{-1, "SM"},
 	}
 
 	var err error

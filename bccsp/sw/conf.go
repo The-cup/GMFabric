@@ -75,6 +75,7 @@ func (conf *config) setSecurityLevelSHA3(level int) (err error) {
 func (conf *config) setSecurityLevelSM() (err error) {
 	conf.ellipticCurve = sm2.P256Sm2()
 	conf.hashFunction = sm3.New
+	conf.aesBitLength = 32
 	conf.sm4BitLength = 16
 	return nil
 }

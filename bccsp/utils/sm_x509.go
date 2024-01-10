@@ -5,6 +5,10 @@ import (
 	"github.com/tjfoc/gmsm/x509"
 )
 
+func ReadPrivateKeyFromPem(privateKeyPem []byte, pwd []byte) (*sm2.PrivateKey, error) {
+	return x509.ReadPrivateKeyFromPem(privateKeyPem, pwd)
+}
+
 func WritePrivateKeyToPem(key *sm2.PrivateKey, pwd []byte) ([]byte, error) {
 	return x509.WritePrivateKeyToPem(key, pwd)
 }
@@ -27,4 +31,8 @@ func ParseSm2PrivateKey(der []byte) (*sm2.PrivateKey, error) {
 
 func ParseSm2PublicKey(der []byte) (*sm2.PublicKey, error) {
 	return x509.ParseSm2PublicKey(der)
+}
+
+func MarshalSm2PublicKey(key *sm2.PublicKey) ([]byte, error) {
+	return x509.MarshalSm2PublicKey(key)
 }

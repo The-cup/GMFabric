@@ -12,9 +12,10 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/hyperledger/fabric/bccsp"
+
 	"github.com/golang/protobuf/proto"
 	"github.com/hyperledger/fabric-protos-go/msp"
-	"github.com/hyperledger/fabric/bccsp"
 	"github.com/hyperledger/fabric/bccsp/factory"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
@@ -334,9 +335,13 @@ func getMspConfig(dir string, ID string, sigid *msp.SigningIdentityInfo) (*msp.M
 	}
 
 	// Set FabricCryptoConfig
+	//cryptoConfig := &msp.FabricCryptoConfig{
+	//	SignatureHashFamily:            bccsp.SHA2,
+	//	IdentityIdentifierHashFunction: bccsp.SHA256,
+	//}
 	cryptoConfig := &msp.FabricCryptoConfig{
-		SignatureHashFamily:            bccsp.SHA2,
-		IdentityIdentifierHashFunction: bccsp.SHA256,
+		SignatureHashFamily:            bccsp.SM3,
+		IdentityIdentifierHashFunction: bccsp.SM3,
 	}
 
 	// Compose FabricMSPConfig
